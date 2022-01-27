@@ -1,4 +1,4 @@
-#!/usr/bin/expect -f
+#!/usr/bin/env -S expect -f
 set timeout -1
 proc slurp {file} {
     set fh [open $file r]
@@ -18,8 +18,12 @@ set imagePath [file join $cwd $imageName]
 puts $imageName
 puts $imagePath\n
 
-spawn docker run -it --rm -v $imagePath:/sdcard/filesystem.img lukechilds/dockerpi:vm
-
+if {[ string match "*arm64*" $imageName ]} {
+puts "64bit image detected"
+  spawn docker run -it --rm -v $imagePath:/sdcard/filesystem.img ghcr.io/carlosperate/dockerpi:vm-fix pi3
+} else {
+  spawn docker run -it --rm -v $imagePath:/sdcard/filesystem.img lukechilds/dockerpi:vm
+}
 expect "raspberrypi login: "
 send "pi\n"
 expect "Password: "
