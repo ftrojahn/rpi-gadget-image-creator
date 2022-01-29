@@ -45,7 +45,20 @@ expect "Password: "
 send "raspberry\n"
 expect "$ "
 
+send "sudo apt-get update\n"
+expect "$ "
+
+if {[file exists $include_file]} {
+  catch {source $include_file} result options
+  if {[dict get $options -code] != 0} {
+      puts stderr "could not source $include_file: $result"
+      exit 1
+  }
+}
+
 send "sudo raspi-config nonint do_hostname $newHostName\n"
+expect "$ "
+send "sudo sed -i s@raspberrypi@$newHostName@ /etc/hosts\n"
 expect "$ "
 
 if {[string trimleft $optionalNewPass] ne ""} {
@@ -57,8 +70,6 @@ send "$optionalNewPass\n"
 expect "$ "
 }
 
-send "sudo apt-get update\n"
-expect "$ "
 send "sudo apt-get -y install dnsmasq\n"
 expect "$ "
 send "sudo apt-get clean\n"
@@ -113,13 +124,6 @@ send "sudo systemctl enable getty@ttyGS0.service\n"
 
 expect "# "
 
-if {[file exists $include_file]} {
-  catch {source $include_file} result options
-  if {[dict get $options -code] != 0} {
-      puts stderr "could not source $include_file: $result"
-      exit 1
-  }
-}
 send "poweroff\n"
 
 expect "Reboot failed -- System halted"
