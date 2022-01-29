@@ -9,14 +9,29 @@ proc slurp {file} {
 set imageName [lindex $argv 0]
 
 if {[string trimleft $imageName] eq ""} {
-  puts "No Image file provided"
+  puts "No Image file provided as 1st argument\n"
   exit
 }
+
+set newHostName [lindex $argv 1]
+
+if {[string trimleft $newHostName] eq ""} {
+  puts "No hostname provided as 2nd argument\n"
+  puts "Optionally: get password from 3rd argument\n"
+  exit
+}
+
+set optionalNewPass [lindex $argv 2]
+
+set include_file "localaddons"
 
 set cwd [file normalize [file dirname $argv0]]
 set imagePath [file join $cwd $imageName]
 puts $imageName
 puts $imagePath\n
+if {[file exists $include_file] } {
+  puts "$include_file exists and will be used\n"
+}
 
 if {[ string match "*arm64*" $imageName ]} {
 puts "64bit image detected"
@@ -28,8 +43,20 @@ expect "raspberrypi login: "
 send "pi\n"
 expect "Password: "
 send "raspberry\n"
-
 expect "$ "
+
+send "sudo raspi-config nonint do_hostname $newHostName\n"
+expect "$ "
+
+if {[string trimleft $optionalNewPass] ne ""} {
+send "sudo passwd pi\n"
+expect "New password: "
+send "$optionalNewPass\n"
+expect "Retype new password: "
+send "$optionalNewPass\n"
+expect "$ "
+}
+
 send "sudo apt-get update\n"
 expect "$ "
 send "sudo apt-get -y install dnsmasq\n"
@@ -85,6 +112,16 @@ expect "# "
 send "sudo systemctl enable getty@ttyGS0.service\n"
 
 expect "# "
+
+if {[file exists $include_file]} {
+  catch {source $include_file} result options
+  if {[dict get $options -code] != 0} {
+      puts stderr "could not source $include_file: $result"
+      exit 1
+  }
+}
 send "poweroff\n"
 
-interact
+expect "Reboot failed -- System halted"
+exec docker stop dockerpi
+exit
