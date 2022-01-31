@@ -18,10 +18,13 @@ set newHostName [lindex $argv 1]
 if {[string trimleft $newHostName] eq ""} {
   puts "No hostname provided as 2nd argument\n"
   puts "Optionally: get password from 3rd argument\n"
+  puts "Optionally: download url for backup tgz to extract in / from 4th argument\n"
   exit
 }
 
 set optionalNewPass [lindex $argv 2]
+
+set optionalTarGzBackup [lindex $argv 3]
 
 set include_file "localaddons"
 
@@ -47,6 +50,19 @@ expect "$ "
 
 send "sudo apt-get update\n"
 expect "$ "
+
+if {[string trimleft $optionalTarGzBackup] ne ""} {
+  send -- "curl -sSL '"
+  send -- [lindex $optionalTarGzBackup]
+  send -- "' -o /tmp/backup.tgz\n"
+  expect "$ "
+
+  send "sudo tar xz -C / -vf /tmp/backup.tgz\n"
+  expect "$ "
+
+  send "rm /tmp/backup.tgz\n"
+  expect "$ "
+}
 
 if {[file exists $include_file]} {
   catch {source $include_file} result options
