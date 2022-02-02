@@ -51,18 +51,48 @@ expect "$ "
 send "sudo apt-get update\n"
 expect "$ "
 
+send "sudo su -\n"
+
+set file [slurp "etc/dpkg/dpkg.cfg.d/01_nodoc"]
+expect "# "
+send "cat <<EOF >> /etc/dpkg/dpkg.cfg.d/01_nodoc\n"
+send "$file\n"
+send "EOF\n"
+
+send "apt-get -qy --purge remove man-db\n"
+expect "# "
+
+send "rm -rf /usr/share/locale/ /usr/share/man/ /usr/share/doc/\n"
+expect "# "
+
+send "dphys-swapfile swapoff\n"
+expect "# "
+
+send "dphys-swapfile uninstall\n"
+expect "# "
+
+send "update-rc.d dphys-swapfile remove\n"
+expect "# "
+
+send "apt-get -qy purge dphys-swapfile\n"
+expect "# "
+
 if {[string trimleft $optionalTarGzBackup] ne ""} {
   send -- "curl -sSL '"
   send -- [lindex $optionalTarGzBackup]
   send -- "' -o /tmp/backup.tgz\n"
-  expect "$ "
+  expect "# "
 
-  send "sudo tar xz -C / -vf /tmp/backup.tgz\n"
-  expect "$ "
+  send "tar xz -C / -vf /tmp/backup.tgz\n"
+  expect "# "
 
   send "rm /tmp/backup.tgz\n"
-  expect "$ "
+  expect "# "
 }
+
+send "exit\n" 
+
+expect "$ "
 
 if {[file exists $include_file]} {
   catch {source $include_file} result options
@@ -71,6 +101,9 @@ if {[file exists $include_file]} {
       exit 1
   }
 }
+
+send "sudo apt-get clean\n"
+expect "$ "
 
 send "sudo raspi-config nonint do_hostname $newHostName\n"
 expect "$ "
@@ -86,7 +119,7 @@ send "$optionalNewPass\n"
 expect "$ "
 }
 
-send "sudo apt-get -y install dnsmasq\n"
+send "sudo apt-get -qy install dnsmasq\n"
 expect "$ "
 send "sudo apt-get clean\n"
 expect "$ "

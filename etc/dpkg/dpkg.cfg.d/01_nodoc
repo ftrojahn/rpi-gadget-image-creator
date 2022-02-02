@@ -1,0 +1,11 @@
+# source: https://forum.digikey.com/t/how-to-disable-man-db-installation/10272/4
+# delete locales
+path-exclude=/usr/share/locale/
+path-include=/usr/share/locale/de
+
+# delete man pages
+path-exclude=/usr/share/man/
+
+# delete docs
+path-exclude=/usr/share/doc/
+path-include=/usr/share/doc/*/copyright
