@@ -77,6 +77,15 @@ expect "# "
 send "apt-get -qy purge dphys-swapfile\n"
 expect "# "
 
+set file [slurp "etc/default/keyboard"]
+expect "# "
+send "cat <<EOF >> /etc/default/keyboard\n"
+send "$file\n"
+send "EOF\n"
+
+send "dpkg-reconfigure -f noninteractive keyboard-configuration\n"
+expect "# "
+
 if {[string trimleft $optionalTarGzBackup] ne ""} {
   send -- "curl -sSL '"
   send -- [lindex $optionalTarGzBackup]
