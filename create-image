@@ -169,7 +169,7 @@ expect "# "
 send "echo denyinterfaces usb0 >> /etc/dhcpcd.conf\n"
 
 expect "# "
-send "sudo systemctl enable getty@ttyGS0.service\n"
+send "sudo systemctl enable serial-getty@ttyGS0.service\n"
 
 expect "# "
 
