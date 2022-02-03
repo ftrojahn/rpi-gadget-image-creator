@@ -58,6 +58,7 @@ expect "# "
 send "cat <<EOF >> /etc/dpkg/dpkg.cfg.d/01_nodoc\n"
 send "$file\n"
 send "EOF\n"
+expect "# "
 
 send "apt-get -qy --purge remove man-db\n"
 expect "# "
@@ -75,13 +76,13 @@ send "update-rc.d dphys-swapfile remove\n"
 expect "# "
 
 send "apt-get -qy purge dphys-swapfile\n"
-expect "# "
 
 set file [slurp "etc/default/keyboard"]
 expect "# "
 send "cat <<EOF >> /etc/default/keyboard\n"
 send "$file\n"
 send "EOF\n"
+expect "# "
 
 send "dpkg-reconfigure -f noninteractive keyboard-configuration\n"
 expect "# "
