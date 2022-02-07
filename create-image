@@ -77,6 +77,11 @@ expect "# "
 
 send "apt-get -qy purge dphys-swapfile\n"
 
+set file [slurp "etc/rc.local"]
+expect "# "
+send "cat <<EOF >> /etc/rc.local\n"
+send "$file\n"
+send "EOF\n"
 set file [slurp "etc/default/keyboard"]
 expect "# "
 send "cat <<EOF >> /etc/default/keyboard\n"
