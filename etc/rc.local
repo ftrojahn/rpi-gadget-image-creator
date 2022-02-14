@@ -22,7 +22,7 @@ PARTSIZE=$( df | sed -n '/root/{s/  */ /gp}' | cut -d ' ' -f2 )
 THRESHOLD=2097152
 
 if (("$PARTSIZE" < "$THRESHOLD")) ; then  
-        [ -e /boot/is-expanded ] || raspi-config --expand-rootfs && touch /boot/is-expanded && reboot
+	[ -e /boot/is-expanded ] || ( raspi-config --expand-rootfs && touch /boot/is-expanded && reboot )
 fi
 
 exit 0
